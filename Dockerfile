@@ -2,7 +2,7 @@ FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
 
 RUN apt-get update &&\
     apt-get -y install build-essential yasm nasm \
-    cmake unzip git wget tmux nano \
+    cmake unzip git wget tmux nano ffmpeg \
     sysstat libtcmalloc-minimal4 pkgconf autoconf libtool \
     python3 python3-pip python3-dev python3-setuptools \
     libsm6 libxext6 libxrender-dev libsndfile1 &&\
@@ -31,7 +31,7 @@ RUN git clone https://github.com/NVIDIA/apex &&\
 RUN pip3 install --no-cache-dir \
     opencv-python==4.1.2.30 \
     scipy==1.5.2 \
-    matplotlib==3.3.0 \
+    matplotlib==3.2.2 \
     pandas==1.0.5 \
     notebook==6.0.3 \
     scikit-learn==0.23.1 \
@@ -40,7 +40,10 @@ RUN pip3 install --no-cache-dir \
     pytorch-argus==0.1.1 \
     numba==0.50.1 \
     librosa==0.8.0 \
-    timm==0.1.30
+    timm==0.1.30 \
+    pydantic==1.6.1
+
+RUN pip install torchaudio==0.5.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 ENV PYTHONPATH $PYTHONPATH:/workdir
 ENV TORCH_HOME=/workdir/data/.torch
