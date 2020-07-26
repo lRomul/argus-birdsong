@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+from pydantic import BaseModel
+
 
 kernel_mode = False
 if 'KERNEL_MODE' in os.environ and os.environ['KERNEL_MODE'] == 'predict':
@@ -62,3 +64,26 @@ class2target = {cls: trg for trg, cls in enumerate(classes)}
 n_classes = len(classes)
 n_folds = 5
 folds = list(range(n_folds))
+
+
+class AudioParams(BaseModel):
+    sampling_rate: int
+    hop_length: int
+    fmin: int
+    fmax: int
+    n_mels: int
+    n_fft: int
+    power: float
+    min_seconds: float
+
+
+audio = AudioParams(
+    sampling_rate=44100,
+    hop_length=690,
+    fmin=20,
+    fmax=22050,
+    n_mels=128,
+    n_fft=2560,
+    power=2.0,
+    min_seconds=2.0
+)
