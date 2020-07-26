@@ -13,46 +13,47 @@ warnings.filterwarnings('ignore',
 
 
 def read_audio_librosa(file_path, sampling_rate):
-    y, sr = librosa.load(file_path, sr=sampling_rate)
-    return y, sr
+    audio, sr = librosa.load(file_path, sr=sampling_rate)
+    return audio, sr
 
 
 def read_audio_torchaudio(file_path, sampling_rate):
-    y, sr = torchaudio.load(file_path, normalization=True)
+    audio, sr = torchaudio.load(file_path, normalization=True)
     if sampling_rate != sr:
-        y = torchaudio.transforms.Resample(sr, sampling_rate)(y)
-    return y[0].cpu().numpy(), sampling_rate
+        audio = torchaudio.transforms.Resample(sr, sampling_rate)(audio)
+    return audio[0].cpu().numpy(), sampling_rate
 
 
 def read_audio(file_path, sampling_rate):
     try:
-        y, sr = read_audio_librosa(file_path, sampling_rate)
+        audio, sr = read_audio_librosa(file_path, sampling_rate)
     except BaseException as e:
-        print(f"Librosa load failed '{file_path}', try torchaudio")
-        y, sr = read_audio_torchaudio(file_path, sampling_rate)
-    return y, sr
+        warnings.warn(f"Librosa load failed '{file_path}', try torchaudio.")
+        try:
+            audio, sr = read_audio_torchaudio(file_path, sampling_rate)
+        except BaseException as e:
+            warnings.warn(f"Torchaudio load failed '{file_path}', return zero array.")
+            audio = np.zeros(sampling_rate, dtype=np.float32)
+            audio, sr = audio, sampling_rate
+    return audio, sr
 
 
-def read_trim_audio(file_path, sampling_rate, min_seconds):
+def read_pad_audio(file_path, sampling_rate, min_seconds):
     min_samples = int(min_seconds * sampling_rate)
     try:
-        y, sr = read_audio(file_path, sampling_rate)
-        trim_y, trim_idx = librosa.effects.trim(y)  # trim, top_db=default(60)
+        audio, sr = read_audio(file_path, sampling_rate)
 
-        if len(trim_y) < min_samples:
-            center = (trim_idx[1] - trim_idx[0]) // 2
-            left_idx = max(0, center - min_samples // 2)
-            right_idx = min(len(y), center + min_samples // 2)
-            trim_y = y[left_idx:right_idx]
+        if len(audio) < min_samples:
+            padding = min_samples - len(audio)
+            offset = padding // 2
+            audio = np.pad(audio, (offset, padding - offset), 'constant')
 
-            if len(trim_y) < min_samples:
-                padding = min_samples - len(trim_y)
-                offset = padding // 2
-                trim_y = np.pad(trim_y, (offset, padding - offset), 'constant')
-        return trim_y
     except BaseException as e:
-        print(f"Exception '{e}' while reading trim audio '{file_path}'")
-        return np.zeros(min_samples, dtype=np.float32)
+        warnings.warn(f"Exception '{e}' while reading trim audio '{file_path}'.")
+        audio = np.zeros(min_samples, dtype=np.float32)
+        sr = sampling_rate
+
+    return audio, sr
 
 
 def audio_to_melspectrogram(audio, params):
@@ -82,8 +83,11 @@ def show_melspectrogram(spectrogram, params, title='Log-frequency power spectrog
     plt.show()
 
 
-def read_as_melspectrogram(file_path, params, debug_display=False):
-    audio = read_trim_audio(file_path, params.sampling_rate, params.min_seconds)
+def read_as_melspectrogram(file_path, params, pad=True, debug_display=False):
+    if pad:
+        audio, _ = read_pad_audio(file_path, params.sampling_rate, params.min_seconds)
+    else:
+        audio, _ = read_audio(file_path, params.sampling_rate)
     spectrogram = audio_to_melspectrogram(audio, params)
     if debug_display:
         import IPython
