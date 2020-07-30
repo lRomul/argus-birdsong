@@ -25,6 +25,7 @@ sample_submission_path = input_data_dir / 'sample_submission.csv'
 train_folds_path = output_data_dir / 'train_folds_v1.csv'
 experiments_dir = output_data_dir / 'experiments'
 predictions_dir = output_data_dir / 'predictions'
+prepared_train_dir = output_data_dir / 'prepared_train'
 
 classes = [
     'aldfly', 'ameavo', 'amebit', 'amecro', 'amegfi', 'amekes', 'amepip', 'amered', 'amerob',
