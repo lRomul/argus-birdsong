@@ -28,11 +28,11 @@ def read_audio(file_path, sampling_rate):
     try:
         audio, sr = read_audio_librosa(file_path, sampling_rate)
     except BaseException as e:
-        warnings.warn(f"Librosa load failed '{file_path}', try torchaudio.")
+        warnings.warn(f"Librosa load failed '{file_path}', '{e}', try torchaudio.")
         try:
             audio, sr = read_audio_torchaudio(file_path, sampling_rate)
         except BaseException as e:
-            warnings.warn(f"Torchaudio load failed '{file_path}', return zero array.")
+            warnings.warn(f"Torchaudio load failed '{file_path}', '{e}', return zero array.")
             audio = np.zeros(sampling_rate, dtype=np.float32)
             audio, sr = audio, sampling_rate
     return audio, sr
@@ -70,9 +70,11 @@ def audio_to_melspectrogram(audio, params):
     return spectrogram
 
 
-def show_melspectrogram(spectrogram, params, title='Log-frequency power spectrogram'):
+def show_melspectrogram(spectrogram, params, figsize=(15, 3),
+                        title='Log-frequency power spectrogram'):
     import matplotlib.pyplot as plt
 
+    plt.figure(figsize=figsize)
     librosa.display.specshow(spectrogram, x_axis='time', y_axis='mel',
                              sr=params.sampling_rate,
                              hop_length=params.hop_length,
