@@ -1,8 +1,13 @@
+import time
+import random
 import numpy as np
 import pandas as pd
 from pathlib import Path
 import multiprocessing as mp
 from functools import partial
+
+import torch
+from torch.utils.data import Dataset
 
 from src.audio import read_as_melspectrogram
 from src.utils import get_params_hash
@@ -42,6 +47,70 @@ def check_prepared_train_data(audio_params):
         print(f"Dataset prepared.")
     else:
         print(f"'{prepared_train_dir}' already exists.")
+
+
+def get_folds_data(audio_params):
+    params_hash = get_params_hash(audio_params.dict())
+    prepared_train_dir = config.prepared_train_dir / params_hash
+    train_df = pd.read_csv(config.train_folds_path)
+    train_dict = train_df.to_dict(orient='index')
+    folds_data = []
+    for _, sample in train_dict.items():
+        class_dir = prepared_train_dir / sample['ebird_code']
+        sample['spec_path'] = str(class_dir / (sample['filename'] + '.npy'))
+        folds_data.append(sample)
+    return folds_data
+
+
+class BirdsongDataset(Dataset):
+    def __init__(self,
+                 data,
+                 folds=None,
+                 target=True,
+                 transform=None,
+                 mixer=None):
+        self.folds = folds
+        self.target = target
+        self.transform = transform
+        self.mixer = mixer
+
+        self.data = data
+
+        if folds is not None:
+            self.data = [s for s in self.data if s['fold'] in folds]
+
+    def __len__(self):
+        return len(self.data)
+
+    def get_sample(self, idx):
+        sample = self.data[idx]
+        image = np.load(sample['spec_path'])
+        target = torch.zeros(len(config.classes))
+        target[config.class2target[sample['ebird_code']]] = 1.
+        return image, target
+
+    def _set_random_seed(self, idx):
+        if isinstance(idx, (tuple, list)):
+            idx = idx[0]
+        seed = int(time.time() * 1000.0) + idx
+        random.seed(seed)
+        np.random.seed(seed % (2**32 - 1))
+
+    @torch.no_grad()
+    def __getitem__(self, idx):
+        self._set_random_seed(idx)
+        if not self.target:
+            image = self.get_sample(idx)
+            if self.transform is not None:
+                image = self.transform(image)
+            return image
+        else:
+            image, target = self.get_sample(idx)
+            if self.transform is not None:
+                image = self.transform(image)
+            if self.mixer is not None:
+                image, target = self.mixer(self, image, target)
+            return image, target
 
 
 if __name__ == "__main__":
