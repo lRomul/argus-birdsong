@@ -27,7 +27,7 @@ parser.add_argument('--experiment', required=True, type=str)
 args = parser.parse_args()
 
 BATCH_SIZE = 64
-EPOCHS = 70
+EPOCHS = 50
 CROP_SIZE = 256
 MIXER_PROB = 0.0
 WRAP_PAD_PROB = 0.5
