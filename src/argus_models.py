@@ -3,6 +3,7 @@ import torch
 from timm import create_model
 from argus import Model
 
+from src.metrics import F1score
 from src.losses import SoftBCEWithLogitsLoss
 
 

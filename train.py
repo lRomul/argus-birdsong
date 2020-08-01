@@ -80,9 +80,9 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
     model = BirdsongModel(PARAMS)
 
     callbacks = [
-        MonitorCheckpoint(save_dir, monitor='val_loss', max_saves=1),
+        MonitorCheckpoint(save_dir, monitor='val_f1_score', max_saves=1),
         CosineAnnealingLR(T_max=EPOCHS, eta_min=0),
-        EarlyStopping(monitor='val_loss', patience=5),
+        EarlyStopping(monitor='val_f1_score', patience=5),
         LoggingToFile(save_dir / 'log.txt'),
         LoggingToCSV(save_dir / 'log.csv')
     ]
@@ -90,7 +90,8 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
     model.fit(train_loader,
               val_loader=val_loader,
               num_epochs=EPOCHS,
-              callbacks=callbacks)
+              callbacks=callbacks,
+              metrics=['f1_score'])
 
 
 if __name__ == "__main__":
