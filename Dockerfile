@@ -36,7 +36,7 @@ RUN pip3 install --no-cache-dir \
     timm==0.1.30 \
     pydantic==1.6.1
 
-RUN pip install torchaudio==0.5.1 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip install --no-dependencies torchaudio==0.5.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 ENV PYTHONPATH $PYTHONPATH:/workdir
 ENV TORCH_HOME=/workdir/data/.torch
