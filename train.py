@@ -27,7 +27,7 @@ parser.add_argument('--experiment', required=True, type=str)
 args = parser.parse_args()
 
 BATCH_SIZE = 64
-EPOCHS = 50
+EPOCHS = 70
 CROP_SIZE = 256
 MIXER_PROB = 0.0
 WRAP_PAD_PROB = 0.5
@@ -82,7 +82,7 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
     callbacks = [
         MonitorCheckpoint(save_dir, monitor='val_f1_score', max_saves=1),
         CosineAnnealingLR(T_max=EPOCHS, eta_min=0),
-        EarlyStopping(monitor='val_f1_score', patience=5),
+        EarlyStopping(monitor='val_f1_score', patience=12),
         LoggingToFile(save_dir / 'log.txt'),
         LoggingToCSV(save_dir / 'log.csv')
     ]
