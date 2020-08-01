@@ -77,10 +77,11 @@ class UseMixerWithProb:
         return image, target
 
 
-def get_mixer(mixer_prob=0.5):
+def get_mixer(mixer_prob=0.5, sigmoid_range=(3, 12),
+              alpha_dist='uniform', random_prob=(0.6, 0.4)):
     mixer = RandomMixer([
-        SigmoidConcatMixer(sigmoid_range=(3, 12)),
-        AddMixer(alpha_dist='uniform')
-    ], p=[0.6, 0.4])
+        SigmoidConcatMixer(sigmoid_range=sigmoid_range),
+        AddMixer(alpha_dist=alpha_dist)
+    ], p=random_prob)
     mixer = UseMixerWithProb(mixer, prob=mixer_prob)
     return mixer
