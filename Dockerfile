@@ -17,15 +17,8 @@ RUN pip3 install --no-cache-dir numpy==1.19.1
 
 # Install PyTorch
 RUN pip3 install --no-cache-dir \
-    torch==1.5.1 \
-    torchvision==0.6.1
-
-# Install Apex
-RUN git clone https://github.com/NVIDIA/apex &&\
-    cd apex &&\
-    git checkout 459de22d59c64e30fd4b368c368c5b74e269f3dd &&\
-    pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" . &&\
-    cd .. && rm -rf apex
+    torch==1.6.0 \
+    torchvision==0.7.0
 
 # Install python ML packages
 RUN pip3 install --no-cache-dir \
