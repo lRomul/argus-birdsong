@@ -1,4 +1,4 @@
-NAME?=argus
+NAME?=argus-birdsong
 
 GPUS?=all
 ifeq ($(GPUS),none)
