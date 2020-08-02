@@ -17,6 +17,7 @@ else:
 train_csv_path = input_data_dir / 'train.csv'
 test_csv_path = input_data_dir / 'test.csv'
 train_audio_dir = input_data_dir / 'train_audio'
+test_audio_dir = input_data_dir / 'test_audio'
 example_test_audio_dir = input_data_dir / 'example_test_audio'
 example_test_audio_metadata_csv_path = input_data_dir / 'example_test_audio_metadata.csv'
 example_test_audio_summary_csv_path = input_data_dir / 'example_test_audio_summary.csv'
