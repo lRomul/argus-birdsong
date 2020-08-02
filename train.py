@@ -19,6 +19,7 @@ from src.datasets import (
 from src.mixers import get_mixer
 from src.transforms import get_transforms
 from src.argus_models import BirdsongModel
+from src.utils import initialize_amp
 from src import config
 
 
@@ -32,6 +33,7 @@ CROP_SIZE = 256
 MIXER_PROB = 0.5
 WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
+USE_AMP = True
 SAVE_DIR = config.experiments_dir / args.experiment
 PARAMS = {
     'nn_module': ('timm', {
@@ -44,7 +46,8 @@ PARAMS = {
         'smooth_factor': None
     }),
     'optimizer': ('AdamW', {'lr': 0.001}),
-    'device': 'cuda'
+    'device': 'cuda',
+    'conv_stem_stride': (1, 1)
 }
 
 
@@ -78,6 +81,9 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
                             shuffle=False, num_workers=NUM_WORKERS)
 
     model = BirdsongModel(PARAMS)
+
+    if USE_AMP:
+        initialize_amp(model)
 
     callbacks = [
         MonitorCheckpoint(save_dir, monitor='val_f1_score', max_saves=1),

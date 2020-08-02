@@ -20,6 +20,13 @@ RUN pip3 install --no-cache-dir \
     torch==1.6.0 \
     torchvision==0.7.0
 
+# Install Apex
+RUN git clone https://github.com/NVIDIA/apex &&\
+    cd apex &&\
+    git checkout 5b53121a2124d70dad0fd4f462d1392d06573ca9 &&\
+    pip install -v --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" . &&\
+    cd .. && rm -rf apex
+
 # Install python ML packages
 RUN pip3 install --no-cache-dir \
     opencv-python==4.1.2.30 \
