@@ -29,11 +29,12 @@ args = parser.parse_args()
 
 BATCH_SIZE = 64
 EPOCHS = 50
-CROP_SIZE = 256
+CROP_SIZE = 320
 MIXER_PROB = 0.5
 WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
-USE_AMP = True
+USE_AMP = False
+ITER_SIZE = 2
 SAVE_DIR = config.experiments_dir / args.experiment
 PARAMS = {
     'nn_module': ('timm', {
@@ -47,6 +48,7 @@ PARAMS = {
     }),
     'optimizer': ('AdamW', {'lr': 0.001}),
     'device': 'cuda',
+    'iter_size': ITER_SIZE,
     'conv_stem_stride': (1, 1)
 }
 
@@ -77,7 +79,7 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
                               shuffle=True, drop_last=True,
                               num_workers=NUM_WORKERS)
-    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE * 2,
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE * 2 // ITER_SIZE,
                             shuffle=False, num_workers=NUM_WORKERS)
 
     model = BirdsongModel(PARAMS)
