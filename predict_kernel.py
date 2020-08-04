@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     transforms = get_transforms(False, CROP_SIZE)
 
-    model_path = '/workdir/data/experiments/stride_001/fold_0/model-047-0.645380.pth'
+    model_path = '/workdir/data/experiments/stride_002/fold_0/model-042-0.690526.pth'
     predictor = Predictor(model_path, transforms, BATCH_SIZE, CROP_SIZE, CROP_SIZE, DEVICE)
 
     spec = audio_id2spec['07ab324c602e4afab65ddbcc746c31b5']

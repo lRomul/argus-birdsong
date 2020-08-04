@@ -1,3 +1,5 @@
+cd $(dirname "${BASH_SOURCE[0]}")
+
 rm -rf ./*.whl
 pip download --no-deps \
     pydantic==1.6.1 \
