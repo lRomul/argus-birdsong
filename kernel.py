@@ -1,9 +1,6 @@
 import os
 
 
-EXPERIMENT = "stride_002"
-
-
 def run(command):
     os.system("export PYTHONPATH=${PYTHONPATH}:/kaggle/working && "
               f"export KERNEL_MODE=predict && " + command)
@@ -15,4 +12,4 @@ run("pip install /kaggle/input/argus-birdsong-dataset/timm-0.1.30-py3-none-any.w
 run("cp -r /kaggle/input/argus-birdsong-dataset/argus-birdsong/* .")
 run("cp -r /kaggle/input/birdcall-check/* ./data/")
 
-run(f"python predict_kernel.py --experiment {EXPERIMENT}")
+run(f"python predict_kernel.py")
