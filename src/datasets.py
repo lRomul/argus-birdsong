@@ -35,10 +35,14 @@ def prepare_train_data(dir_path, audio_params, device='cpu', n_workers=None):
                    save_dir=dir_path,
                    audio_params=audio_params,
                    device=device)
-    if n_workers is None:
-        n_workers = mp.cpu_count()
-    with mp.Pool(n_workers) as pool:
-        pool.map(func, file_path_lst)
+    if torch.device(device).type == 'cpu':
+        if n_workers is None:
+            n_workers = mp.cpu_count()
+        with mp.Pool(n_workers) as pool:
+            pool.map(func, file_path_lst)
+    else:
+        for file_path in file_path_lst:
+            func(file_path)
 
 
 def check_prepared_train_data(audio_params, device='cpu', n_workers=None):
@@ -119,4 +123,4 @@ class BirdsongDataset(Dataset):
 
 
 if __name__ == "__main__":
-    check_prepared_train_data(audio_params=config.audio, device='cuda', n_workers=4)
+    check_prepared_train_data(audio_params=config.audio, device='cuda')

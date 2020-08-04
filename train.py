@@ -118,7 +118,7 @@ if __name__ == "__main__":
     with open(SAVE_DIR / 'params.json', 'w') as outfile:
         json.dump(PARAMS, outfile)
 
-    check_prepared_train_data(audio_params=config.audio, device=DEVICE, n_workers=4)
+    check_prepared_train_data(audio_params=config.audio, device=DEVICE)
     folds_data = get_folds_data(config.audio)
 
     for fold in config.folds:
