@@ -9,7 +9,7 @@ if 'KERNEL_MODE' in os.environ and os.environ['KERNEL_MODE'] == 'predict':
 
 if kernel_mode:
     input_data_dir = Path('/kaggle/input/birdsong-recognition/')
-    output_data_dir = Path('/kaggle/working/')
+    output_data_dir = Path('/kaggle/working/data')
 else:
     input_data_dir = Path('/workdir/data/')
     output_data_dir = Path('/workdir/data/')
