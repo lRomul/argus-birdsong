@@ -4,7 +4,9 @@ import numpy as np
 import librosa
 import librosa.display
 
+import torch
 import torchaudio
+from torchaudio.transforms import MelSpectrogram
 
 
 warnings.filterwarnings('ignore',
@@ -64,9 +66,31 @@ def audio_to_melspectrogram(audio, params):
                                                  n_fft=params.n_fft,
                                                  fmin=params.fmin,
                                                  fmax=params.fmax,
-                                                 power=params.power)
+                                                 power=params.power,
+                                                 htk=params.htk,
+                                                 norm=params.norm)
     spectrogram = librosa.power_to_db(spectrogram)
     spectrogram = spectrogram.astype(np.float32)
+    return spectrogram
+
+
+@torch.no_grad()
+def audio_to_melspectrogram_gpu(audio, params, device='cpu'):
+    assert params.htk and params.norm is None
+    device = torch.device(device)
+    audio = torch.from_numpy(audio).to(device)
+    melspect_transform = MelSpectrogram(sample_rate=params.sampling_rate,
+                                        window_fn=torch.hann_window,
+                                        hop_length=params.hop_length,
+                                        n_mels=params.n_mels,
+                                        n_fft=params.n_fft,
+                                        f_min=params.fmin,
+                                        f_max=params.fmax).to(device)
+    spectrogram = melspect_transform(audio)
+    power_to_db_transform = torchaudio.transforms.AmplitudeToDB('power', 80.)
+    power_to_db_transform = power_to_db_transform.to(device)
+    power_to_db_torch = power_to_db_transform(spectrogram)
+    spectrogram = power_to_db_torch.squeeze().cpu().numpy()
     return spectrogram
 
 
@@ -85,12 +109,17 @@ def show_melspectrogram(spectrogram, params, figsize=(15, 3),
     plt.show()
 
 
-def read_as_melspectrogram(file_path, params, pad=True, debug_display=False):
+def read_as_melspectrogram(file_path, params, pad=True, device='cpu', debug_display=False):
     if pad:
         audio, _ = read_pad_audio(file_path, params.sampling_rate, params.min_seconds)
     else:
         audio, _ = read_audio(file_path, params.sampling_rate)
-    spectrogram = audio_to_melspectrogram(audio, params)
+    device = torch.device(device)
+    if device.type == 'cuda':
+        spectrogram = audio_to_melspectrogram_gpu(audio, params, device=device)
+    else:
+        spectrogram = audio_to_melspectrogram(audio, params)
+
     if debug_display:
         import IPython
         IPython.display.display(

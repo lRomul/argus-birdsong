@@ -35,6 +35,7 @@ WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
 USE_AMP = False
 ITER_SIZE = 2
+DEVICE = 'cuda'
 SAVE_DIR = config.experiments_dir / args.experiment
 PARAMS = {
     'nn_module': ('timm', {
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     with open(SAVE_DIR / 'params.json', 'w') as outfile:
         json.dump(PARAMS, outfile)
 
-    check_prepared_train_data(config.audio)
+    check_prepared_train_data(audio_params=config.audio, device=DEVICE, n_workers=4)
     folds_data = get_folds_data(config.audio)
 
     for fold in config.folds:

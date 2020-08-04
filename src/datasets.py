@@ -14,15 +14,16 @@ from src.utils import get_params_hash
 from src import config
 
 
-def make_spectrogram_and_save(file_path: Path, save_dir: Path, audio_params):
-    spec = read_as_melspectrogram(file_path, audio_params)
+def make_spectrogram_and_save(file_path: Path, save_dir: Path,
+                              device, audio_params):
+    spec = read_as_melspectrogram(file_path, audio_params, device=device)
     save_class_dir = save_dir / file_path.parents[0].name
     save_class_dir.mkdir(parents=True, exist_ok=True)
     save_path = save_class_dir / (file_path.name + '.npy')
     np.save(save_path, spec)
 
 
-def prepare_train_data(dir_path, audio_params):
+def prepare_train_data(dir_path, audio_params, device='cpu', n_workers=None):
     dir_path = Path(dir_path)
     file_path_lst = []
     train_df = pd.read_csv(config.train_folds_path)
@@ -31,19 +32,23 @@ def prepare_train_data(dir_path, audio_params):
         file_path_lst.append(file_path)
 
     func = partial(make_spectrogram_and_save,
-                   save_dir=dir_path, audio_params=audio_params)
-
-    with mp.Pool(mp.cpu_count()) as pool:
+                   save_dir=dir_path,
+                   audio_params=audio_params,
+                   device=device)
+    if n_workers is None:
+        n_workers = mp.cpu_count()
+    with mp.Pool(n_workers) as pool:
         pool.map(func, file_path_lst)
 
 
-def check_prepared_train_data(audio_params):
+def check_prepared_train_data(audio_params, device='cpu', n_workers=None):
     params_hash = get_params_hash(audio_params.dict())
     prepared_train_dir = config.prepared_train_dir / params_hash
 
     if not prepared_train_dir.exists():
         print(f"Start preparing dataset to '{prepared_train_dir}'")
-        prepare_train_data(prepared_train_dir, audio_params)
+        prepare_train_data(prepared_train_dir, audio_params,
+                           device=device, n_workers=n_workers)
         print(f"Dataset prepared.")
     else:
         print(f"'{prepared_train_dir}' already exists.")
@@ -114,4 +119,4 @@ class BirdsongDataset(Dataset):
 
 
 if __name__ == "__main__":
-    check_prepared_train_data(audio_params=config.audio)
+    check_prepared_train_data(audio_params=config.audio, device='cuda', n_workers=4)

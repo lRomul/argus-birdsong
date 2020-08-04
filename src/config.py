@@ -1,4 +1,5 @@
 import os
+import typing
 from pathlib import Path
 from pydantic import BaseModel
 
@@ -79,6 +80,8 @@ class AudioParams(BaseModel):
     n_fft: int
     power: float
     min_seconds: float
+    htk: bool
+    norm: typing.Any
 
 
 audio = AudioParams(
@@ -89,5 +92,7 @@ audio = AudioParams(
     n_mels=128,
     n_fft=2560,
     power=2.0,
-    min_seconds=2.0
+    min_seconds=2.0,
+    htk=True,
+    norm=None
 )
