@@ -33,7 +33,7 @@ class Predictor:
     def __init__(self, model_path, transforms,
                  batch_size, tile_size, tile_step,
                  device='cuda'):
-        self.model = load_model(model_path, device=device)
+        self.model = load_model(str(model_path), device=device)
         self.transforms = transforms
         self.tile_size = tile_size
         self.tile_step = tile_step
