@@ -83,6 +83,8 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
                             shuffle=False, num_workers=NUM_WORKERS)
 
     model = BirdsongModel(PARAMS)
+    if 'pretrained' in model.params['nn_module'][1]:
+        model.params['nn_module'][1]['pretrained'] = False
 
     if USE_AMP:
         initialize_amp(model)
