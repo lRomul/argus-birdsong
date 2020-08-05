@@ -19,6 +19,10 @@ from src.datasets import (
 from src.mixers import get_mixer
 from src.transforms import get_transforms
 from src.argus_models import BirdsongModel
+from src.freesound import (
+    get_freesound_folds_data,
+    check_prepared_freesound_data
+)
 from src.utils import initialize_amp
 from src import config
 
@@ -35,6 +39,7 @@ WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
 USE_AMP = False
 ITER_SIZE = 2
+FREESOUND = True
 SAVE_DIR = config.experiments_dir / args.experiment
 PARAMS = {
     'nn_module': ('timm', {
@@ -119,6 +124,10 @@ if __name__ == "__main__":
 
     check_prepared_train_data(config.audio)
     folds_data = get_folds_data(config.audio)
+
+    if FREESOUND:
+        check_prepared_freesound_data(config.audio)
+        folds_data += get_freesound_folds_data(config.audio)
 
     for fold in config.folds:
         val_folds = [fold]

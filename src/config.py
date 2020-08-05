@@ -60,7 +60,7 @@ classes = [
     'vesspa', 'vigswa', 'warvir', 'wesblu', 'wesgre', 'weskin', 'wesmea', 'wessan', 'westan',
     'wewpew', 'whbnut', 'whcspa', 'whfibi', 'whtspa', 'whtswi', 'wilfly', 'wilsni1', 'wiltur',
     'winwre3', 'wlswar', 'wooduc', 'wooscj2', 'woothr', 'y00475', 'yebfly', 'yebsap', 'yehbla',
-    'yelwar', 'yerwar', 'yetvir'
+    'yelwar', 'yerwar', 'yetvir', 'nocall'
 ]
 
 target2class = {trg: cls for trg, cls in enumerate(classes)}
@@ -91,3 +91,10 @@ audio = AudioParams(
     power=2.0,
     min_seconds=2.0
 )
+
+freesound_data_dir = input_data_dir / 'freesound-audio-tagging-2019'
+freesound_train_curated_dir = freesound_data_dir / 'train_curated'
+freesound_prepared_train_curated_dir = freesound_data_dir / 'prepared_train_curated'
+freesound_train_noisy_dir = freesound_data_dir / 'train_noisy'
+freesound_train_curated_csv_path = freesound_data_dir / 'train_curated.csv'
+freesound_train_noisy_csv_path = freesound_data_dir / 'train_noisy.csv'
