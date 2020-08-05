@@ -72,10 +72,12 @@ def pred2classes(pred, threshold=0.5):
     return classes
 
 
-def make_submission(audio_id2pred):
+def make_submission(test_df, audio_id2pred):
     row_id_lst = []
     birds_lst = []
     for audio_id, group in test_df.groupby('audio_id'):
+        group = group.sort_values('seconds')
+
         site = group.site.unique().tolist()
         assert len(site) == 1
         site = site[0]
@@ -119,4 +121,4 @@ if __name__ == "__main__":
     experiment_dir = config.experiments_dir / EXPERIMENT
     exp_pred = experiment_pred(experiment_dir, audio_id2spec)
 
-    make_submission(exp_pred)
+    make_submission(test_df, exp_pred)
