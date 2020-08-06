@@ -29,15 +29,16 @@ from src import config
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--experiment', required=True, type=str)
+parser.add_argument('--folds', default='', type=str)
 args = parser.parse_args()
 
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 EPOCHS = 75
 CROP_SIZE = 320
 MIXER_PROB = 0.8
 WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
-USE_AMP = False
+USE_AMP = True
 ITER_SIZE = 2
 FREESOUND = True
 SAVE_DIR = config.experiments_dir / args.experiment
@@ -51,7 +52,7 @@ PARAMS = {
     'loss': ('SoftBCEWithLogitsLoss', {
         'smooth_factor': None
     }),
-    'optimizer': ('AdamW', {'lr': 0.001}),
+    'optimizer': ('AdamW', {'lr': 0.002}),
     'device': 'cuda',
     'iter_size': ITER_SIZE,
     'conv_stem_stride': (1, 1)
@@ -129,7 +130,12 @@ if __name__ == "__main__":
         check_prepared_freesound_data(config.audio)
         folds_data += get_freesound_folds_data(config.audio)
 
-    for fold in config.folds:
+    if args.folds:
+        folds = [int(fold) for fold in args.folds.split(',')]
+    else:
+        folds = config.folds
+
+    for fold in folds:
         val_folds = [fold]
         train_folds = list(set(config.folds) - set(val_folds))
         save_fold_dir = SAVE_DIR / f'fold_{fold}'
