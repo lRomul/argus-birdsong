@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -50,7 +51,9 @@ def get_freesound_folds_data(audio_params):
     prepared_train_dir = config.freesound_prepared_train_curated_dir / params_hash
 
     folds_data = []
-    for i, spec_path in enumerate(sorted(prepared_train_dir.glob("*.npy"))):
+    audio_paths = sorted(prepared_train_dir.glob("*.npy"))
+    random.Random(42).shuffle(audio_paths)
+    for i, spec_path in enumerate(audio_paths):
         sample = {
             'ebird_code': 'nocall',
             'spec_path': spec_path,

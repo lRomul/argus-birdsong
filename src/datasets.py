@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 import multiprocessing as mp
 from functools import partial
+from collections import defaultdict
 
 import torch
 from torch.utils.data import Dataset
@@ -79,10 +80,19 @@ class BirdsongDataset(Dataset):
         if folds is not None:
             self.data = [s for s in self.data if s['fold'] in folds]
 
+        class2indexes = defaultdict(list)
+        for idx, sample in enumerate(self.data):
+            class2indexes[sample['ebird_code']] += [idx]
+        self.class2indexes = dict(class2indexes)
+
     def __len__(self):
         return len(self.data)
 
-    def get_sample(self, idx):
+    def get_sample(self, idx, random_class=True):
+        if random_class:
+            cls = np.random.choice(config.classes)
+            idx = np.random.choice(self.class2indexes[cls])
+
         sample = self.data[idx]
         image = np.load(sample['spec_path'])
         target = torch.zeros(len(config.classes))
@@ -100,7 +110,7 @@ class BirdsongDataset(Dataset):
     def __getitem__(self, idx):
         self._set_random_seed(idx)
         if not self.target:
-            image = self.get_sample(idx)
+            image = self.get_sample(idx, random_class=False)
             if self.transform is not None:
                 image = self.transform(image)
             return image
