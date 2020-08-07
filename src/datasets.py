@@ -69,11 +69,13 @@ class BirdsongDataset(Dataset):
                  folds=None,
                  target=True,
                  transform=None,
-                 mixer=None):
+                 mixer=None,
+                 random_class=False):
         self.folds = folds
         self.target = target
         self.transform = transform
         self.mixer = mixer
+        self.random_class = random_class
 
         self.data = data
 
@@ -88,8 +90,8 @@ class BirdsongDataset(Dataset):
     def __len__(self):
         return len(self.data)
 
-    def get_sample(self, idx, random_class=True):
-        if random_class:
+    def get_sample(self, idx):
+        if self.random_class:
             cls = np.random.choice(config.classes)
             idx = np.random.choice(self.class2indexes[cls])
 
@@ -110,7 +112,7 @@ class BirdsongDataset(Dataset):
     def __getitem__(self, idx):
         self._set_random_seed(idx)
         if not self.target:
-            image = self.get_sample(idx, random_class=False)
+            image = self.get_sample(idx)
             if self.transform is not None:
                 image = self.transform(image)
             return image

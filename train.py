@@ -78,8 +78,8 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
                       random_prob=(0.6, 0.4))
 
     train_dataset = BirdsongDataset(folds_data, folds=train_folds,
-                                    transform=train_transfrom, mixer=mixer)
-
+                                    transform=train_transfrom, mixer=mixer,
+                                    random_class=True)
     val_dataset = BirdsongDataset(folds_data, folds=val_folds,
                                   transform=val_transform)
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
