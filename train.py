@@ -32,14 +32,14 @@ parser.add_argument('--experiment', required=True, type=str)
 parser.add_argument('--folds', default='', type=str)
 args = parser.parse_args()
 
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 75
 CROP_SIZE = 320
 MIXER_PROB = 0.8
 WRAP_PAD_PROB = 0.5
 NUM_WORKERS = 8
 USE_AMP = True
-ITER_SIZE = 2
+ITER_SIZE = 1
 FREESOUND = True
 SAVE_DIR = config.experiments_dir / args.experiment
 PARAMS = {
@@ -78,9 +78,8 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
                       random_prob=(0.6, 0.4))
 
     train_dataset = BirdsongDataset(folds_data, folds=train_folds,
-                                    transform=train_transfrom, mixer=mixer,
-                                    random_class=True)
-    val_dataset = BirdsongDataset(folds_data, folds=val_folds,
+                                    transform=train_transfrom, mixer=mixer)
+    val_dataset = BirdsongDataset(folds_data, folds=val_folds + [config.n_folds],
                                   transform=val_transform)
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE,
                               shuffle=True, drop_last=True,

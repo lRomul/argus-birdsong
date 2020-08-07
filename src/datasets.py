@@ -70,17 +70,22 @@ class BirdsongDataset(Dataset):
                  target=True,
                  transform=None,
                  mixer=None,
-                 random_class=False):
+                 random_class=False,
+                 filter_nocall=False):
         self.folds = folds
         self.target = target
         self.transform = transform
         self.mixer = mixer
         self.random_class = random_class
+        self.filter_nocall = filter_nocall
 
         self.data = data
 
         if folds is not None:
             self.data = [s for s in self.data if s['fold'] in folds]
+
+        if self.filter_nocall:
+            self.data = [s for s in self.data if s['ebird_code'] != 'nocall']
 
         class2indexes = defaultdict(list)
         for idx, sample in enumerate(self.data):

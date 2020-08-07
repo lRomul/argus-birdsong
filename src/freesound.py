@@ -1,4 +1,4 @@
-import random
+import shutil
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -8,6 +8,20 @@ from functools import partial
 from src.audio import read_as_melspectrogram
 from src.utils import get_params_hash
 from src import config
+
+
+NOISE_SOUNDS = [
+    'Buzz',
+    'Car_passing_by',
+    'Crackle',
+    'Cricket',
+    'Hiss',
+    'Mechanical_fan',
+    'Stream',
+    'Traffic_noise_and_roadway_noise',
+    'Walk_and_footsteps',
+    'Waves_and_surf',
+]
 
 
 def make_spectrogram_and_save(file_path: Path, save_dir: Path, audio_params):
@@ -23,7 +37,13 @@ def prepare_freesound_data(dir_path, audio_params):
     file_path_lst = []
     train_df = pd.read_csv(config.freesound_train_curated_csv_path)
     for i, row in train_df.iterrows():
-        if 'Chirp_and_tweet' not in row.labels:
+        noise = True
+        for label in row.labels.split(','):
+            if label not in NOISE_SOUNDS:
+                noise = False
+                break
+
+        if noise:
             file_path = config.freesound_train_curated_dir / row.fname
             file_path_lst.append(file_path)
 
@@ -37,13 +57,11 @@ def prepare_freesound_data(dir_path, audio_params):
 def check_prepared_freesound_data(audio_params):
     params_hash = get_params_hash(audio_params.dict())
     prepared_train_dir = config.freesound_prepared_train_curated_dir / params_hash
+    shutil.rmtree(prepared_train_dir)
 
-    if not prepared_train_dir.exists():
-        print(f"Start preparing freesound dataset to '{prepared_train_dir}'")
-        prepare_freesound_data(prepared_train_dir, audio_params)
-        print(f"Dataset prepared.")
-    else:
-        print(f"'{prepared_train_dir}' already exists.")
+    print(f"Start preparing freesound dataset to '{prepared_train_dir}'")
+    prepare_freesound_data(prepared_train_dir, audio_params)
+    print(f"Dataset prepared.")
 
 
 def get_freesound_folds_data(audio_params):
@@ -52,12 +70,11 @@ def get_freesound_folds_data(audio_params):
 
     folds_data = []
     audio_paths = sorted(prepared_train_dir.glob("*.npy"))
-    random.Random(42).shuffle(audio_paths)
     for i, spec_path in enumerate(audio_paths):
         sample = {
             'ebird_code': 'nocall',
             'spec_path': spec_path,
-            'fold': i % config.n_folds
+            'fold': config.n_folds
         }
         folds_data.append(sample)
     return folds_data

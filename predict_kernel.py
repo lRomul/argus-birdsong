@@ -5,7 +5,7 @@ import pandas as pd
 from src.predictor import Predictor
 from src.transforms import get_transforms
 from src.audio import read_audio, audio_to_melspectrogram
-from src.utils import get_best_model_path
+from src.utils import get_best_model_path, nocall_prediction
 
 from src import config
 
@@ -14,9 +14,10 @@ warnings.filterwarnings('ignore',
                         'PySoundFile failed. Trying audioread instead.',
                         UserWarning)
 
-EXPERIMENT = "freesound_nocall_004"
+EXPERIMENT = "nocall_validation_001"
 CROP_SIZE = 320
 BATCH_SIZE = 16
+THRESHOLD = 0.2
 DEVICE = 'cuda'
 
 
@@ -64,14 +65,13 @@ def experiment_pred(experiment_dir, audio_id2spec):
     return audio_id2pred
 
 
-def pred2classes(pred):
-    pred = pred.copy()
-    target = np.argmax(pred)
-    cls = config.target2class[target]
-    if cls == 'nocall':
+def pred2classes(pred, threshold=0.5):
+    pred = nocall_prediction(pred, threshold=threshold)
+    bird = config.target2class[pred]
+    if bird == "nocall":
         return []
     else:
-        return [cls]
+        return [bird]
 
 
 def make_submission(test_df, audio_id2pred):
@@ -88,7 +88,7 @@ def make_submission(test_df, audio_id2pred):
 
         if site != 'site_3':
             for i, row in group.reset_index().iterrows():
-                classes = pred2classes(audio_pred[i])
+                classes = pred2classes(audio_pred[i], threshold=THRESHOLD)
                 if not classes:
                     classes = ["nocall"]
 
@@ -97,7 +97,7 @@ def make_submission(test_df, audio_id2pred):
         else:
             classes = []
             for pred in audio_pred:
-                classes += pred2classes(pred)
+                classes += pred2classes(pred, threshold=THRESHOLD)
             classes = list(set(classes))
             if not classes:
                 classes = ["nocall"]
