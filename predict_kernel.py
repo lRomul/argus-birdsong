@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore',
                         'PySoundFile failed. Trying audioread instead.',
                         UserWarning)
 
-EXPERIMENT = "freesound_nocall_001"
+EXPERIMENT = "freesound_nocall_004"
 CROP_SIZE = 320
 BATCH_SIZE = 16
 DEVICE = 'cuda'
@@ -68,7 +68,10 @@ def pred2classes(pred):
     pred = pred.copy()
     target = np.argmax(pred)
     cls = config.target2class[target]
-    return [cls]
+    if cls == 'nocall':
+        return []
+    else:
+        return [cls]
 
 
 def make_submission(test_df, audio_id2pred):
