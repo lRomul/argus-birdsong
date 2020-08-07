@@ -86,13 +86,14 @@ class BirdsongDataset(Dataset):
         for idx, sample in enumerate(self.data):
             class2indexes[sample['ebird_code']] += [idx]
         self.class2indexes = dict(class2indexes)
+        self.classes = sorted(self.class2indexes.keys())
 
     def __len__(self):
         return len(self.data)
 
     def get_sample(self, idx):
         if self.random_class:
-            cls = np.random.choice(config.classes)
+            cls = np.random.choice(self.classes)
             idx = np.random.choice(self.class2indexes[cls])
 
         sample = self.data[idx]
