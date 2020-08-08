@@ -4,17 +4,21 @@ from timm import create_model
 from argus import Model
 from argus.utils import deep_to, deep_detach, deep_chunk
 from argus.model.build import choose_attribute_from_dict, cast_nn_module
+from argus.loss import pytorch_losses
 
 from src.metrics import F1score
 from src.losses import SoftBCEWithLogitsLoss
+from src.models.skip_attenstion import SkipAttention
 
 
 class BirdsongModel(Model):
     nn_module = {
         'timm': create_model,
+        'SkipAttention': SkipAttention
     }
     loss = {
-        'SoftBCEWithLogitsLoss': SoftBCEWithLogitsLoss
+        'SoftBCEWithLogitsLoss': SoftBCEWithLogitsLoss,
+        **pytorch_losses
     }
     prediction_transform = torch.nn.Sigmoid
 

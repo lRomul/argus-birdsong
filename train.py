@@ -33,10 +33,9 @@ parser.add_argument('--folds', default='', type=str)
 args = parser.parse_args()
 
 BATCH_SIZE = 64
-EPOCHS = 75
+EPOCHS = 50
 CROP_SIZE = 320
-MIXER_PROB = 0.8
-WRAP_PAD_PROB = 0.5
+MIXER_PROB = 0.0
 NUM_WORKERS = 8
 USE_AMP = True
 ITER_SIZE = 1
@@ -49,10 +48,8 @@ PARAMS = {
         'num_classes': config.n_classes,
         'in_chans': 3
     }),
-    'loss': ('SoftBCEWithLogitsLoss', {
-        'smooth_factor': None
-    }),
-    'optimizer': ('AdamW', {'lr': 0.002}),
+    'loss': 'BCEWithLogitsLoss',
+    'optimizer': ('AdamW', {'lr': 0.001}),
     'device': 'cuda',
     'iter_size': ITER_SIZE,
     'conv_stem_stride': (1, 1)
@@ -62,7 +59,7 @@ PARAMS = {
 def train_fold(save_dir, train_folds, val_folds, folds_data):
     train_transfrom = get_transforms(train=True,
                                      size=CROP_SIZE,
-                                     wrap_pad_prob=WRAP_PAD_PROB,
+                                     wrap_pad_prob=0.5,
                                      resize_scale=(0.8, 1.0),
                                      resize_ratio=(1.7, 2.3),
                                      resize_prob=0.33,
@@ -72,10 +69,13 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
                                      spec_prob=0.5)
     val_transform = get_transforms(train=False, size=CROP_SIZE)
 
-    mixer = get_mixer(mixer_prob=MIXER_PROB,
-                      sigmoid_range=(3, 12),
-                      alpha_dist='uniform',
-                      random_prob=(0.6, 0.4))
+    if MIXER_PROB:
+        mixer = get_mixer(mixer_prob=MIXER_PROB,
+                          sigmoid_range=(3, 12),
+                          alpha_dist='uniform',
+                          random_prob=(0.6, 0.4))
+    else:
+        mixer = None
 
     train_dataset = BirdsongDataset(folds_data, folds=train_folds,
                                     transform=train_transfrom, mixer=mixer)
