@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore',
 EXPERIMENT = "nocall_validation_001"
 CROP_SIZE = 320
 BATCH_SIZE = 16
-THRESHOLD = 0.2
+THRESHOLD = 0.152
 DEVICE = 'cuda'
 
 
