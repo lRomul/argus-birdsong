@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore',
 EXPERIMENT = "stride_002"
 CROP_SIZE = 320
 BATCH_SIZE = 16
-THRESHOLD = 0.2
+THRESHOLD = 0.5
 DEVICE = 'cuda'
 
 
