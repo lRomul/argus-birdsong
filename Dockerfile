@@ -41,7 +41,8 @@ RUN pip3 install --no-cache-dir \
     numba==0.50.1 \
     librosa==0.8.0 \
     timm==0.1.30 \
-    pydantic==1.6.1
+    pydantic==1.6.1 \
+    resnest==0.0.5
 
 RUN pip install --no-dependencies torchaudio==0.5.1 -f https://download.pytorch.org/whl/torch_stable.html
 

@@ -9,12 +9,14 @@ from argus.loss import pytorch_losses
 from src.metrics import F1score
 from src.losses import SoftBCEWithLogitsLoss
 from src.models.skip_attenstion import SkipAttention
+from src.models.resnest import ResNeSt
 
 
 class BirdsongModel(Model):
     nn_module = {
         'timm': create_model,
-        'SkipAttention': SkipAttention
+        'SkipAttention': SkipAttention,
+        'ResNeSt': ResNeSt
     }
     loss = {
         'SoftBCEWithLogitsLoss': SoftBCEWithLogitsLoss,
@@ -59,17 +61,3 @@ class BirdsongModel(Model):
             'target': target,
             'loss': loss.item()
         }
-
-    def build_nn_module(self, nn_module_meta, nn_module_params):
-        if nn_module_meta is None:
-            raise ValueError("nn_module is required attribute for argus.Model")
-
-        nn_module, nn_module_params = choose_attribute_from_dict(nn_module_meta,
-                                                                 nn_module_params)
-        nn_module = cast_nn_module(nn_module)
-        nn_module = nn_module(**nn_module_params)
-
-        if 'conv_stem_stride' in self.params:
-            nn_module.conv_stem.stride = self.params['conv_stem_stride']
-
-        return nn_module

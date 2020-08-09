@@ -14,11 +14,12 @@ warnings.filterwarnings('ignore',
                         'PySoundFile failed. Trying audioread instead.',
                         UserWarning)
 
-EXPERIMENT = "nocall_validation_001"
+EXPERIMENT = "test_021"
 CROP_SIZE = 320
 BATCH_SIZE = 16
-THRESHOLD = 0.152
+THRESHOLD = 0.63
 DEVICE = 'cuda'
+FOLDS = [0]
 
 
 def prepare_audio_id_to_spec_data(test_df, audio_params):
@@ -44,7 +45,7 @@ def experiment_pred(experiment_dir, audio_id2spec):
     transforms = get_transforms(False, CROP_SIZE)
 
     pred_lst = []
-    for fold in config.folds:
+    for fold in FOLDS:
         print("Predict fold", fold)
         fold_dir = experiment_dir / f'fold_{fold}'
         model_path = get_best_model_path(fold_dir)
