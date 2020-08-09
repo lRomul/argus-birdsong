@@ -96,9 +96,10 @@ def train_fold(save_dir, train_folds, val_folds, folds_data):
 
     model.set_device(DEVICES)
 
+    num_iterations = (5 * len(train_dataset)) // BATCH_SIZE
     callbacks = [
         MonitorCheckpoint(save_dir, monitor='val_loss', max_saves=1),
-        CosineAnnealingLR(T_max=5 * len(train_dataset), eta_min=0, step_on_iteration=True),
+        CosineAnnealingLR(T_max=num_iterations, eta_min=0, step_on_iteration=True),
         EarlyStopping(monitor='val_loss', patience=12),
         LoggingToFile(save_dir / 'log.txt'),
         LoggingToCSV(save_dir / 'log.csv')
