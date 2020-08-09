@@ -104,7 +104,7 @@ class OneOf:
 class ImageToTensor:
     def __call__(self, image):
         image = np.stack([image, image, image], axis=0)
-        image = image.astype(np.float32) / 100
+        image = (image.astype(np.float32) / 100) + 0.6
         image = torch.from_numpy(image)
         return image
 
