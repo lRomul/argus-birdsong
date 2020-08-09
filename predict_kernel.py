@@ -14,10 +14,10 @@ warnings.filterwarnings('ignore',
                         'PySoundFile failed. Trying audioread instead.',
                         UserWarning)
 
-EXPERIMENT = "test_021"
+EXPERIMENT = "resnest_001"
 CROP_SIZE = 320
 BATCH_SIZE = 16
-THRESHOLD = 0.63
+THRESHOLD = 0.64
 DEVICE = 'cuda'
 FOLDS = [0]
 
