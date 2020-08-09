@@ -50,7 +50,7 @@ PARAMS = {
         'num_classes': config.n_classes
     }),
     'loss': 'BCEWithLogitsLoss',
-    'optimizer': ('AdamW', {'lr': 0.001}),
+    'optimizer': ('Adam', {'lr': 0.001}),
     'device': DEVICES[0],
     'iter_size': ITER_SIZE
 }

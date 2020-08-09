@@ -82,12 +82,12 @@ class AudioParams(BaseModel):
 
 
 audio = AudioParams(
-    sampling_rate=44100,
-    hop_length=690,
+    sampling_rate=32000,
+    hop_length=512,
     fmin=20,
-    fmax=22050,
+    fmax=16000,
     n_mels=128,
-    n_fft=2560,
+    n_fft=2048,
     power=2.0,
     min_seconds=2.0
 )
