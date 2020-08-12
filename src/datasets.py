@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 import multiprocessing as mp
 from functools import partial
+from collections import defaultdict
 
 import torch
 from torch.utils.data import Dataset
@@ -68,21 +69,38 @@ class BirdsongDataset(Dataset):
                  folds=None,
                  target=True,
                  transform=None,
-                 mixer=None):
+                 mixer=None,
+                 random_class=False,
+                 filter_nocall=False):
         self.folds = folds
         self.target = target
         self.transform = transform
         self.mixer = mixer
+        self.random_class = random_class
+        self.filter_nocall = filter_nocall
 
         self.data = data
 
         if folds is not None:
             self.data = [s for s in self.data if s['fold'] in folds]
 
+        if self.filter_nocall:
+            self.data = [s for s in self.data if s['ebird_code'] != 'nocall']
+
+        class2indexes = defaultdict(list)
+        for idx, sample in enumerate(self.data):
+            class2indexes[sample['ebird_code']] += [idx]
+        self.class2indexes = dict(class2indexes)
+        self.classes = sorted(self.class2indexes.keys())
+
     def __len__(self):
         return len(self.data)
 
     def get_sample(self, idx):
+        if self.random_class:
+            cls = np.random.choice(self.classes)
+            idx = np.random.choice(self.class2indexes[cls])
+
         sample = self.data[idx]
         image = np.load(sample['spec_path'])
         target = torch.zeros(len(config.classes))

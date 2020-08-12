@@ -5,7 +5,7 @@ import pandas as pd
 from src.predictor import Predictor
 from src.transforms import get_transforms
 from src.audio import read_audio, audio_to_melspectrogram
-from src.utils import get_best_model_path
+from src.utils import get_best_model_path, nocall_prediction
 
 from src import config
 
@@ -14,11 +14,12 @@ warnings.filterwarnings('ignore',
                         'PySoundFile failed. Trying audioread instead.',
                         UserWarning)
 
-EXPERIMENT = "stride_002"
+EXPERIMENT = "resnest_001"
 CROP_SIZE = 320
 BATCH_SIZE = 16
-THRESHOLD = 0.5
+THRESHOLD = 0.64
 DEVICE = 'cuda'
+FOLDS = [0]
 
 
 def prepare_audio_id_to_spec_data(test_df, audio_params):
@@ -44,7 +45,7 @@ def experiment_pred(experiment_dir, audio_id2spec):
     transforms = get_transforms(False, CROP_SIZE)
 
     pred_lst = []
-    for fold in config.folds:
+    for fold in FOLDS:
         print("Predict fold", fold)
         fold_dir = experiment_dir / f'fold_{fold}'
         model_path = get_best_model_path(fold_dir)
@@ -66,10 +67,12 @@ def experiment_pred(experiment_dir, audio_id2spec):
 
 
 def pred2classes(pred, threshold=0.5):
-    targets = np.argwhere(pred >= threshold)
-    targets = targets.reshape(-1).tolist()
-    classes = [config.target2class[t] for t in targets]
-    return classes
+    pred = nocall_prediction(pred, threshold=threshold)
+    bird = config.target2class[pred]
+    if bird == "nocall":
+        return []
+    else:
+        return [bird]
 
 
 def make_submission(test_df, audio_id2pred):

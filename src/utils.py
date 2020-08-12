@@ -1,7 +1,10 @@
 import re
 import json
+import numpy as np
 from hashlib import sha1
 from pathlib import Path
+
+from src import config
 
 
 def get_params_hash(params):
@@ -46,3 +49,9 @@ def get_best_model_path(dir_path, return_score=False):
         return best_model_path, best_score
     else:
         return best_model_path
+
+
+def nocall_prediction(pred, threshold=0.5):
+    pred = pred.copy()
+    pred[..., config.class2target['nocall']] = threshold
+    return np.argmax(pred, axis=-1)
